@@ -1,0 +1,6 @@
+{
+  "name": "TileSniper",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./TileSniper.js"
+}
