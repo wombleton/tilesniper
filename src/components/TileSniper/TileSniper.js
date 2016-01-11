@@ -2,6 +2,7 @@ import React, { Component, DOM, PropTypes } from 'react';
 const ReactDOM = require('react-dom');
 const _ = require('lodash');
 const dispatcher = require('../../core/Dispatcher');
+const Candidate = require('../Candidate');
 const CandidateStore = require('../../stores/CandidateStore');
 import s from './index.scss';
 import img from './image.jpg';
@@ -125,10 +126,8 @@ class TileSniper extends Component {
   }
 
   render() {
-    const itemHtml = this.state.items.map((item, i) => {
-      return <li key={item.key}>
-        {item.x}, {item.y}
-      </li>;
+    const candidates = this.state.items.map((item, i) => {
+      return <Candidate key={item.key} data={item}/>;
     });
 
     const boxes = this.state.items.map((item, i) => {
@@ -148,9 +147,7 @@ class TileSniper extends Component {
             <div className={s.reticule} style={this.state.style} />
             { boxes }
           </div>
-          <ul>
-            { itemHtml }
-          </ul>
+          { candidates }
         </div>
       </div>
     );
