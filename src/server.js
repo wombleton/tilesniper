@@ -8,6 +8,7 @@
  */
 
 import 'babel-core/polyfill';
+const mongoose = require('mongoose');
 import path from 'path';
 import express from 'express';
 import React from 'react';
@@ -16,9 +17,14 @@ import Router from './routes';
 import Html from './components/Html';
 import assets from './assets';
 import { port } from './config';
+const methodOverride = require('method-override');
+const bodyParser = require('body-parser');
 
 const server = global.server = express();
+server.use(methodOverride());
+server.use(bodyParser.json());
 
+mongoose.connect('mongodb://localhost/tilesniper', {});
 //
 // Register Node.js middleware
 // -----------------------------------------------------------------------------
@@ -28,6 +34,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 // Register API middleware
 // -----------------------------------------------------------------------------
 server.use('/api/content', require('./api/content'));
+server.use('/api/tile', require('./api/tile'));
 
 //
 // Register server-side rendering middleware
