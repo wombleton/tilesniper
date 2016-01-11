@@ -2,6 +2,7 @@ import React, { Component, DOM, PropTypes } from 'react';
 const ReactDOM = require('react-dom');
 const _ = require('lodash');
 const dispatcher = require('../../core/Dispatcher');
+const CandidateStore = require('../../stores/CandidateStore');
 import s from './index.scss';
 import img from './image.jpg';
 import withStyles from '../../decorators/withStyles';
@@ -14,6 +15,7 @@ class TileSniper extends Component {
     super(props);
 
     this.state = {
+      items: [],
       pos: { x: 0, y: 0 }
     };
     this.updateStyles = _.throttle(this.updateStyles, 100);
@@ -36,6 +38,17 @@ class TileSniper extends Component {
     this.ctx = canvas.getContext('2d');
     this.ctx.drawImage(img, 0, 0);
     this.updateStyles();
+    CandidateStore.bus.on('change', this.listChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    CandidateStore.bus.removeLister('change', this.listChanged);
+  }
+
+  listChanged() {
+    this.setState({
+      items: CandidateStore.list()
+    });
   }
 
   updateStyles() {
@@ -63,12 +76,12 @@ class TileSniper extends Component {
   getPos(e) {
     const { currentTarget: target } = e;
     return {
-      x: e.pageX - target.offsetLeft,
-      y: e.pageY - target.offsetTop
+      x: e.pageX + target.scrollLeft - target.offsetLeft,
+      y: e.pageY + target.scrollTop - target.offsetTop
     };
   }
 
-  slurp(pos) {
+  poop(pos) {
     const coords = this.getCoords(pos);
 
     if (coords.left < 0 || coords.left + 64 > this.width) {
@@ -85,7 +98,17 @@ class TileSniper extends Component {
       chars.push(String.fromCharCode(n));
     });
 
-    return chars.join('');
+    const image = chars.join('');
+
+    dispatcher.dispatch({
+      eventName: 'candidate',
+      item: {
+        image,
+        x: coords.left,
+        y: coords.top,
+        size: 64
+      }
+    });
   }
 
   onClick(e) {
@@ -93,7 +116,7 @@ class TileSniper extends Component {
 
     for (let i = -16; i <= 16; i += 8) {
       for (let j = -16; j <= 16; j += 8) {
-        slurp({
+        this.poop({
           x: x + i,
           y: y + j
         });
@@ -102,6 +125,20 @@ class TileSniper extends Component {
   }
 
   render() {
+    const itemHtml = this.state.items.map((item, i) => {
+      return <li key={item.key}>
+        {item.x}, {item.y}
+      </li>;
+    });
+
+    const boxes = this.state.items.map((item, i) => {
+      const style = {
+        left: `${item.x}px`,
+        top: `${item.y}px`
+      };
+      return <div key={i} className={s.box} style={style}></div>;
+    });
+
     return (
       <div className={s.root}>
         <div className={s.container}>
@@ -109,7 +146,11 @@ class TileSniper extends Component {
           <div className={s.bd} onMouseMove={this.onMouseMove.bind(this)} onClick={this.onClick.bind(this)}>
             <img ref="img" src={img} />
             <div className={s.reticule} style={this.state.style} />
+            { boxes }
           </div>
+          <ul>
+            { itemHtml }
+          </ul>
         </div>
       </div>
     );

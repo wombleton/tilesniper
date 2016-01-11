@@ -8,10 +8,20 @@
 
 .bd {
   position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: auto;
 }
 
 .reticule {
   border: 1px solid red;
+  width: 64px;
+  height: 64px;
+  position: absolute;
+}
+
+.box {
+  border: 1px solid #ccc;
   width: 64px;
   height: 64px;
   position: absolute;
