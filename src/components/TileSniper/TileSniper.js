@@ -5,7 +5,6 @@ const dispatcher = require('../../core/Dispatcher');
 const Candidate = require('../Candidate');
 const CandidateStore = require('../../stores/CandidateStore');
 import s from './index.scss';
-import img from './image.jpg';
 import withStyles from '../../decorators/withStyles';
 
 const title = 'Snipe';
@@ -31,14 +30,6 @@ class TileSniper extends Component {
   }
 
   componentDidMount() {
-    const img = ReactDOM.findDOMNode(this.refs.img);
-    const canvas = document.createElement('canvas');
-    this.height = canvas.height = img.height;
-    this.width = canvas.width = img.width;
-
-    this.ctx = canvas.getContext('2d');
-    this.ctx.drawImage(img, 0, 0);
-    this.updateStyles();
     CandidateStore.bus.on('change', this.listChanged.bind(this));
   }
 
@@ -62,6 +53,9 @@ class TileSniper extends Component {
   }
 
   onMouseMove(e) {
+    if (!this.state.img) {
+      return;
+    }
     const pos = this.getPos(e);
     this.setState({ pos });
     this.updateStyles();
@@ -105,6 +99,7 @@ class TileSniper extends Component {
       eventName: 'candidate',
       item: {
         image,
+        fileName: this.state.name,
         x: coords.left,
         y: coords.top,
         size: 64
@@ -125,6 +120,40 @@ class TileSniper extends Component {
     }
   }
 
+  pickImage () {
+    const picker = ReactDOM.findDOMNode(this.refs.picker);
+    const file = picker.files && picker.files[0];
+
+    if (!file) {
+      this.setState({
+        img: undefined,
+        name: undefined
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      this.setState({
+        img: e.target.result,
+        name: file.name
+      });
+      const img = ReactDOM.findDOMNode(this.refs.img);
+      this.canvas = document.createElement('canvas');
+
+      img.onload = () => {
+        this.height = this.canvas.height = img.height;
+        this.width = this.canvas.width = img.width;
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.drawImage(img, 0, 0);
+        this.updateStyles();
+      };
+    };
+
+    reader.readAsDataURL(file);
+  }
+
   render() {
     const candidates = this.state.items.map((item, i) => {
       return <Candidate key={item.key} data={item}/>;
@@ -138,13 +167,25 @@ class TileSniper extends Component {
       return <div key={i} className={s.box} style={style}></div>;
     });
 
+    let img, reticule;
+
+    if (this.state.img) {
+      img = <img ref="img" src={this.state.img} />;
+      reticule = <div className={s.reticule} style={this.state.style} />;
+    }
+
     return (
       <div className={s.root}>
         <div className={s.container}>
           <h1>{title}</h1>
+
+          <input type="file" ref="picker" onChange={this.pickImage.bind(this)}/>
           <div className={s.bd} onMouseMove={this.onMouseMove.bind(this)} onClick={this.onClick.bind(this)}>
-            <img ref="img" src={img} />
-            <div className={s.reticule} style={this.state.style} />
+
+            { img }
+
+            { reticule}
+
             { boxes }
           </div>
           { candidates }

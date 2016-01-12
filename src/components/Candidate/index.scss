@@ -1,10 +1,10 @@
 .candidate {
-  border: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   margin: 8px;
-  padding: 8px;
+  padding: 20px;
 
   > div {
-    margin: 8px 0;
+    margin-bottom: 8px;
   }
 }
 
@@ -13,4 +13,8 @@ button {
   padding: 8px;
   background: #e8e8e8;
   border: 1px solid #888;
+
+  &:last-of-type {
+    margin-right: 20px;
+  }
 }
