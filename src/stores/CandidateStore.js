@@ -17,6 +17,12 @@ class CandidateStore {
     this.items.push(item);
     this.bus.emit('change');
   }
+
+  remove (item) {
+    const index = this.items.indexOf(item);
+    this.items.splice(index, 1);
+    this.bus.emit('change');
+  }
 }
 
 const store = new CandidateStore();

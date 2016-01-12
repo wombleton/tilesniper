@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+const CandidateStore = require('../../stores/CandidateStore');
 const ReactDOM = require('react-dom');
 import fetch from '../../core/fetch';
 import withStyles from '../../decorators/withStyles';
@@ -39,6 +40,7 @@ class Candidate extends Component {
         },
         body: JSON.stringify(data)
       });
+      CandidateStore.remove(data);
     }()
   }
 
