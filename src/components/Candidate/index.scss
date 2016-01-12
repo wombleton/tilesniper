@@ -1,0 +1,16 @@
+.candidate {
+  border: 1px solid #ccc;
+  margin: 8px;
+  padding: 8px;
+
+  > div {
+    margin: 8px 0;
+  }
+}
+
+button {
+  margin-right: 3px;
+  padding: 8px;
+  background: #e8e8e8;
+  border: 1px solid #888;
+}
