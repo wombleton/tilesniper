@@ -31,6 +31,8 @@ const router = new Router(on => {
 
   on('/register', async () => <RegisterPage />);
 
+  on('/', async () => <TileSniper />);
+
   on('/snipe', async () => <TileSniper />);
 
   on('*', async (state) => {
